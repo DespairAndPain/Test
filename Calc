@@ -1,0 +1,973 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Calc
+{
+    public class Calculate
+    {
+        double Numb_Wall_Now;       // Какая стенка выбрана
+        double Ans;
+        double AverageTemp;         // Средняя температура для крэффициента теплопроводности
+
+        double T1;
+        double T2;
+        double K;
+        double TempInside;
+        double TempT2;
+        double differenceGlobal;
+
+        double _CoeffTermalConductivity;
+
+        double Bolcman = 0.00000005668; // Постоянная Стефана-Больцмана 
+        double Coeff;               // Коэффициент теплопередачи (α) при естественной конвекции
+        double PlaceCoeff;          // Коэффициент при разных положениях теплоотвода
+        double EmissivityCoeff;     // Коэффициент степение черноты
+        double Numb_Wall_Generally;
+        double _HeatFluxWall1;
+        double _HeatFluxWall2;
+        double _HeatFluxWall3;
+        double _HeatFluxWallOut;
+
+        double Difference1;
+        double Difference2;
+        double Difference3;
+        double Difference1New;
+        double Difference2New;
+        double Difference3New;
+
+        int i = 0;
+
+        // Коэффициент теплопроводности стенки определённых материалов
+        public double CoeffTermalConductivity(  double Numb_Wall_Generally,
+                                                double Numb_Wall_Now,
+                                                double ChoseMaterial,
+                                                double TempInside,
+                                                double TempT2,
+                                                double TempT3,
+                                                double TempLastWall)
+        {
+            #region --Средняя температура для определенной стенки--
+            if (Numb_Wall_Generally == 3)
+            {
+
+                if (Numb_Wall_Now == 1)
+                {
+                    AverageTemp = (TempInside + TempT2) / 2;
+                }
+
+                if (Numb_Wall_Now == 2)
+                {
+                    AverageTemp = (TempT3 + TempT2) / 2;
+                }
+
+                if (Numb_Wall_Now == 3)
+                {
+                    AverageTemp = (TempT3 + TempLastWall) / 2;
+                }
+            }
+
+            if (Numb_Wall_Generally == 2)
+            {
+                if (Numb_Wall_Now == 1)
+                {
+                    AverageTemp = (TempInside + TempT2) / 2;
+                }
+
+                if (Numb_Wall_Now == 2)
+                {
+                    AverageTemp = (TempLastWall + TempT2) / 2;
+                }
+            }
+
+            if (Numb_Wall_Generally == 1)
+            {
+                if (Numb_Wall_Now == 1)
+                {
+                    AverageTemp = (TempInside + TempLastWall) / 2;
+                }
+            }
+            #endregion
+
+            #region --Коэффициенты теплопроводности материалов--
+                if (ChoseMaterial == 1) //Шамот
+                {
+                    Ans = 0.84 + 0.58 * Math.Pow(10, -3) * AverageTemp;
+                }
+
+                if (ChoseMaterial == 2) //Магнезит
+                {
+                    Ans = 4.7 - 1.7 * Math.Pow(10, -3) * AverageTemp;
+                }
+
+                if (ChoseMaterial == 3) //Шамот ША
+                {
+                    Ans = 2.8 * Math.Pow(10, -3) * AverageTemp - 0.009 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.974;
+                }
+
+                if (ChoseMaterial == 4) //Шамот ШБ
+                {
+                    Ans = 0.804 + 0.59 * Math.Pow(10, -3) * AverageTemp;
+                }
+
+                if (ChoseMaterial == 5) //Шамот ШУС
+                {
+                    Ans = 0.41 * Math.Pow(10, -3) * AverageTemp - 0.01 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.95;
+                }
+
+                if (ChoseMaterial == 6) //Шамот легковес ШЛ - 1,3
+                {
+                    Ans = 0.35 * Math.Pow(10, -3) * AverageTemp + 0.47;
+                }
+
+                if (ChoseMaterial == 7) //Шамот легковес ШКЛ - 1,3
+                {
+                    Ans = 0.347 * Math.Pow(10, -3) * AverageTemp + 0.49;
+                }
+
+                if (ChoseMaterial == 8) //Шамот легковес ШЛ - 1,0
+                {
+                    Ans = 0.351 * Math.Pow(10, -3) * AverageTemp + 0.35;
+                }
+
+                if (ChoseMaterial == 9) //Шамот легковес ШЛА - 1,3
+                {
+                    Ans = 0.238 * Math.Pow(10, -3) * AverageTemp - 0.009 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.47;
+                }
+
+                if (ChoseMaterial == 10) //Шамот легковес ШЛА - 1,0
+                {
+                    Ans = 0.307 * Math.Pow(10, -3) * AverageTemp - 0.027 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.307;
+                }
+
+                if (ChoseMaterial == 11) //Шамот легковес ШЛ - 0,9
+                {
+                    Ans = 0.316 * Math.Pow(10, -3) * AverageTemp - 0.009 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.316;
+                }
+
+                if (ChoseMaterial == 12) //Шамот легковес ШЛ - 0,6
+                {
+                    Ans = 0.176 * Math.Pow(10, -3) * AverageTemp - 0.045 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.206;
+                }
+
+                if (ChoseMaterial == 13) //Шамот легковес ШЛ - 0,4
+                {
+                    Ans = 0.192 * Math.Pow(10, -3) * AverageTemp - 0.018 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.119;
+                }
+
+                if (ChoseMaterial == 14) //Вата ВГВ - 80
+                {
+                    Ans = 0.491 * Math.Pow(10, -3) * AverageTemp + 0.178 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.104;
+                }
+
+                if (ChoseMaterial == 15) //Вата ВГВ - 200
+                {
+                    Ans = 0.511 * Math.Pow(10, -3) * AverageTemp + 0.181 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.123;
+                }
+
+                if (ChoseMaterial == 16) //Вата ВГВ - 150
+                {
+                    Ans = 0.484 * Math.Pow(10, -3) * AverageTemp + 0.166 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.116;
+                }
+
+                if (ChoseMaterial == 17) //Вата ВГР - 130
+                {
+                    Ans = 0.49 * Math.Pow(10, -3) * AverageTemp + 0.166 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.118;
+                }
+
+                if (ChoseMaterial == 18) //Вата ВГР - 150
+                {
+                    Ans = 0.484 * Math.Pow(10, -3) * AverageTemp + 0.166 * Math.Pow(10, -6) * Math.Pow(AverageTemp, 2) + 0.166;
+                }
+
+
+            #endregion
+
+            return Ans;
+        }
+
+        // Коэффициент теплопроводности стенки задаваемый с помощью коэффициентов
+        public double CoeffTermalConductivityWithCoeff( double TypeOfCoeffTermalConductivity,
+                                                        double Acoeff,
+                                                        double Bcoeff,
+                                                        double Ccoeff,
+                                                        double Numb_Wall_Generally,
+                                                        double Numb_Wall_Now,
+                                                        double TempInside,
+                                                        double TempT2,
+                                                        double TempT3,
+                                                        double TempLastWall)
+        {
+            #region --Средняя температура для определенной стенки--
+            if (Numb_Wall_Generally == 3)
+            {
+
+                if (Numb_Wall_Now == 1)
+                {
+                    AverageTemp = (TempInside + TempT2) / 2;
+                }
+
+                if (Numb_Wall_Now == 2)
+                {
+                    AverageTemp = (TempT3 + TempT2) / 2;
+                }
+
+                if (Numb_Wall_Now == 3)
+                {
+                    AverageTemp = (TempT3 + TempLastWall) / 2;
+                }
+            }
+
+            if (Numb_Wall_Generally == 2)
+            {
+                if (Numb_Wall_Now == 1)
+                {
+                    AverageTemp = (TempInside + TempT2) / 2;
+                }
+
+                if (Numb_Wall_Now == 2)
+                {
+                    AverageTemp = (TempLastWall + TempT2) / 2;
+                }
+            }
+
+            if (Numb_Wall_Generally == 1)
+            {
+                if (Numb_Wall_Now == 1)
+                {
+                    AverageTemp = (TempInside + TempLastWall) / 2;
+                }
+            }
+            #endregion
+
+            Ans = Acoeff + Bcoeff * AverageTemp + Ccoeff * Math.Pow(AverageTemp, 2);
+
+            return Ans;
+        }
+
+
+        #region --Потоки тепла--
+
+        //Поток тепла в через первую стенку
+        public double HeatFluxWall1(double Numb_Wall_Generally,
+                                        double ChoseMaterial,
+                                        double TypeOfCoeffTermalConductivity,
+                                        double DepthWall1,
+                                        double TempInside,
+                                        double TempT2,
+                                        double TempLastWall,
+                                        double Acoeff,
+                                        double Bcoeff,
+                                        double Ccoeff)
+        {
+            Numb_Wall_Now = 1;
+
+            if (TypeOfCoeffTermalConductivity == 1)
+            {
+                _CoeffTermalConductivity = CoeffTermalConductivity(Numb_Wall_Generally, Numb_Wall_Now, ChoseMaterial, TempInside, TempT2, 0, TempLastWall);
+            }
+
+            if (TypeOfCoeffTermalConductivity == 2)
+            {
+                _CoeffTermalConductivity = CoeffTermalConductivityWithCoeff(TypeOfCoeffTermalConductivity, Acoeff, Bcoeff, Ccoeff, Numb_Wall_Generally, Numb_Wall_Now, TempInside, TempT2, 0, TempLastWall);
+            }
+
+            if (Numb_Wall_Generally == 1)
+            {
+                T1 = TempInside;
+                T2 = TempLastWall;
+            }
+
+            if (Numb_Wall_Generally == 2 || Numb_Wall_Generally == 3)
+            {
+                T1 = TempInside;
+                T2 = TempT2;
+            }
+
+            Ans = (T1 - T2) / (DepthWall1 / _CoeffTermalConductivity);
+
+            return Ans;
+        }
+
+        //Поток тепла в через вторую стенку стенку
+        public double HeatFluxWall2(double Numb_Wall_Generally,
+                                        double ChoseMaterial,
+                                        double TypeOfCoeffTermalConductivity,
+                                        double DepthWall2,
+                                        double TempInside,
+                                        double TempT2,
+                                        double TempT3,
+                                        double TempLastWall,
+                                        double Acoeff,
+                                        double Bcoeff,
+                                        double Ccoeff)
+        {
+            Numb_Wall_Now = 2;
+
+            if (TypeOfCoeffTermalConductivity == 1)
+            {
+                _CoeffTermalConductivity = CoeffTermalConductivity(Numb_Wall_Generally, Numb_Wall_Now, ChoseMaterial, TempInside, TempT2, TempT3, TempLastWall);
+            }
+
+            if (TypeOfCoeffTermalConductivity == 2)
+            {
+                _CoeffTermalConductivity = CoeffTermalConductivityWithCoeff(TypeOfCoeffTermalConductivity, Acoeff, Bcoeff, Ccoeff, Numb_Wall_Generally, Numb_Wall_Now, TempInside, TempT2, TempT3, TempLastWall);
+            }
+
+            if (Numb_Wall_Generally == 2)
+            {
+                T1 = TempT2;
+                T2 = TempLastWall;
+            }
+
+            if (Numb_Wall_Generally == 3)
+            {
+                T1 = TempT2;
+                T2 = TempT3;
+            }
+
+            Ans = (T1 - T2) / (DepthWall2 / _CoeffTermalConductivity);
+
+            return Ans;
+        }
+        //Поток тепла в через третью стенку
+        public double HeatFluxWall3(double Numb_Wall_Generally,
+                                        double ChoseMaterial,
+                                        double TypeOfCoeffTermalConductivity,
+                                        double DepthWall3,
+                                        double TempT3,
+                                        double TempLastWall,
+                                        double Acoeff,
+                                        double Bcoeff,
+                                        double Ccoeff)
+        {
+            Numb_Wall_Now = 3;
+            TempInside = 0;
+            TempT2 = 0;
+
+            if (TypeOfCoeffTermalConductivity == 1)
+            {
+                _CoeffTermalConductivity = CoeffTermalConductivity(Numb_Wall_Generally, Numb_Wall_Now, ChoseMaterial, TempInside, TempT2, TempT3, TempLastWall);
+            }
+
+            if (TypeOfCoeffTermalConductivity == 2)
+            {
+                _CoeffTermalConductivity = CoeffTermalConductivityWithCoeff(TypeOfCoeffTermalConductivity, Acoeff, Bcoeff, Ccoeff, Numb_Wall_Generally, Numb_Wall_Now, TempInside, TempT2, TempT3, TempLastWall);
+            }
+
+            T1 = TempT3;
+            T2 = TempLastWall;
+
+            Ans = (T1 - T2) / (DepthWall3 / _CoeffTermalConductivity);
+
+            return Ans;
+        }
+        //Поток тепла наружу
+        public double HeatFluxWall4(double ChoseBlowout,
+                                    double ChosePlace,
+                                    double Emissivity,
+                                    double TempLastWall,
+                                    double TempOut,
+                                    double SpeedBlowout)
+        {
+            // На Гольцеве посмотреть
+            #region -- №1 Естественная конвекция --
+
+            if (ChoseBlowout == 1)
+            {
+                #region -- Положение стенки --
+
+                if (ChosePlace == 1) // Вертикальная стенка
+                {
+                    PlaceCoeff = 2.4;
+                }
+
+                if (ChosePlace == 2) // Отдача тепла вверх
+                {
+                    PlaceCoeff = 3.3;
+                }
+
+                if (ChosePlace == 3) // Отдача тепла вниз
+                {
+                    PlaceCoeff = 1.6;
+                }
+
+                #endregion
+
+                #region -- Степень черноты материала --
+
+                if (Emissivity == 1 || Emissivity == 2) // Кирпичная стенка или Стальной каркас
+                {
+                    EmissivityCoeff = 0.8;
+                }
+
+                if (Emissivity == 3) // Светлая алюминевая краска
+                {
+                    EmissivityCoeff = 0.2;
+                }
+
+                #endregion
+                double x = 1/4;
+                Coeff = (PlaceCoeff * Math.Pow((TempLastWall - TempOut), x)) + ((Bolcman * EmissivityCoeff * (Math.Pow((TempLastWall + 273), 4) - Math.Pow((TempOut + 273), 4))) / (TempLastWall - TempOut));
+                
+            } //тут что то не так считает 17.11.2013 коэффициент примерно в 2 раза меньше чем должен быть
+
+            #endregion
+
+            #region -- №2 Обдув воздухом --
+
+            if (ChoseBlowout == 2)
+            {
+                Coeff = (9.5 + 0.07 * TempLastWall) * (1 + 0.2 * SpeedBlowout);
+            }
+
+            #endregion
+
+            Ans = Coeff * (TempLastWall - TempOut);
+
+            return Ans;
+        }
+        #endregion
+
+
+        // Подбор значений для одной
+
+        /// <summary>
+        /// Подбор значений для одной стенки
+        /// </summary>
+        public double[] SelectionFor1Walls( double ChoseMaterial,                  // Вид материала
+                                            double TypeOfCoeffTermalConductivity,  // Определение коэффициента теплопроводности с помощью определённых материалов или с помощью заданных коэффициентов
+                                            double DepthWall1,                  // Ширина стеки
+                                            double TempInside,                  // Температура внутри почи = Температура внутренней поверхности печи
+                                            double TempLastWall,                // Температура внешней стороны последней стенки печи
+                                            double Acoeff,                      
+                                            double Bcoeff,                      // Коэффициенты 
+                                            double Ccoeff,  
+                                            double ChoseBlowout,                // Каким образом происзодит теплоотвод
+                                            double ChosePlace,                  // В какую сторону происзодит теплоотвод
+                                            double Emissivity,                  // Материал покрывающий внешнюю стенку
+                                            double TempOut,                     // Температура окружающего воздуха
+                                            double SpeedBlowout)
+        {
+            Numb_Wall_Generally = 1;
+
+
+            #region --HeatFluxWall1--
+            _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, 0, TempLastWall, Acoeff, Bcoeff, Ccoeff);
+            #endregion
+            #region --HeatFluxWall2--
+            _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+            #endregion
+
+            Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWallOut);
+            Difference1New = Difference1;
+
+            TempLastWall = TempLastWall - 0.01;
+
+            #region --HeatFluxWall1--
+            _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, 0, TempLastWall, Acoeff, Bcoeff, Ccoeff);
+            #endregion
+            #region --HeatFluxWall2--
+            _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+            #endregion
+
+            Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWallOut);
+
+            int i = 0;
+
+            if (Difference1 < Difference1New)
+            {
+                while (Difference1 > 1)
+                {
+                    TempLastWall = TempLastWall - 0.01;
+
+                    #region --HeatFluxWall1--
+                    _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, 0, TempLastWall, Acoeff, Bcoeff, Ccoeff);
+                    #endregion
+                    #region --HeatFluxWall2--
+                    _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                    #endregion
+
+                    Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWallOut);
+                }
+
+                i++;
+            }
+
+            if (Difference1 > Difference1New || i == 0)
+            {
+                while (Difference1 > 1)
+                {
+                    TempLastWall = TempLastWall + 0.01;
+
+                    #region --HeatFluxWall1--
+                    _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, 0, TempLastWall, Acoeff, Bcoeff, Ccoeff);
+                    #endregion
+                    #region --HeatFluxWall2--
+                    _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                    #endregion
+
+                    Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWallOut);
+                }
+            }
+
+            return new double[] { TempLastWall, _HeatFluxWall1, _HeatFluxWallOut };
+        }               
+        // Подбор значений для двух стенок
+        public double[] SelectionFor2Walls(double ChoseMaterial1,
+                                            double ChoseMaterial2,
+                                            double TypeOfCoeffTermalConductivity,
+                                            double DepthWall1,
+                                            double DepthWall2,
+                                            double TempInside,
+                                            double TempT2,
+                                            double TempLastWall,
+                                            double AcoeffWall1,
+                                            double BcoeffWall1,
+                                            double CcoeffWall1,
+                                            double AcoeffWall2,
+                                            double BcoeffWall2,
+                                            double CcoeffWall2,
+                                            double ChoseBlowout,
+                                            double ChosePlace,
+                                            double Emissivity,
+                                            double TempOut,
+                                            double SpeedBlowout)
+        {
+            i = 0;
+            Numb_Wall_Generally = 2;
+            Difference1 = 5;
+            Difference2 = 5;
+            int K = 0;
+
+            while (Difference1 > 1 || Difference2 > 1)
+            {
+
+                #region --Первая стенка--
+
+                #region --_HeatFluxWall1--
+                _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial1, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, TempT2, TempLastWall, AcoeffWall1, BcoeffWall1, CcoeffWall1);
+                #endregion
+                #region --_HeatFluxWall2--
+                _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, 0, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                #endregion
+
+                Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWall2);
+                Difference1New = Difference1;
+
+
+                TempT2 = TempT2 - 0.1;
+
+                #region --_HeatFluxWall1--
+                _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial1, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, TempT2, TempLastWall, AcoeffWall1, BcoeffWall1, CcoeffWall1);
+                #endregion
+                #region --_HeatFluxWall2--
+                _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, 0, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                #endregion
+
+                Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWall2);
+
+                if (Difference1 < Difference1New || i == 0)
+                {
+                    while (Difference1 > 1 && TempT2 > 0)
+                    {
+                        TempT2 = TempT2 - 0.1;
+
+                        #region --_HeatFluxWall1--
+                        _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial1, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, TempT2, TempLastWall, AcoeffWall1, BcoeffWall1, CcoeffWall1);
+                        #endregion
+                        #region --_HeatFluxWall2--
+                        _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, 0, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                        #endregion
+
+                        Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWall2);
+                    }
+
+                    i = i + 1;
+                }
+
+                if (Difference1 > Difference1New || i == 0)
+                {
+                    while (Difference1 > 1 && TempT2 < 2000)
+                    {
+                        TempT2 = TempT2 + 0.1;
+
+                        #region --_HeatFluxWall1--
+                        _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial1, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, TempT2, TempLastWall, AcoeffWall1, BcoeffWall1, CcoeffWall1);
+                        #endregion
+                        #region --_HeatFluxWall2--
+                        _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, 0, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                        #endregion
+
+                        Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWall2);
+                    }
+
+                    i = i + 1;
+                }
+
+                #endregion
+
+                #region --Вторая стенка--
+
+                #region --_HeatFluxWall2--
+                _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, 0, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                #endregion
+                #region --_HeatFluxWallOut--
+                _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                #endregion
+
+                Difference2 = Math.Abs(_HeatFluxWall2 - _HeatFluxWallOut);
+                Difference2New = Difference2;
+
+                TempLastWall = TempLastWall - 0.1;
+
+                #region --_HeatFluxWall2--
+                _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, 0, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                #endregion
+                #region --_HeatFluxWallOut--
+                _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                #endregion
+
+                Difference2 = Math.Abs(_HeatFluxWall2 - _HeatFluxWallOut);
+
+
+
+                if (Difference2 < Difference2New || i == 1)
+                {
+
+                    while (Difference2 > 1 && TempLastWall > 0)
+                    {
+                        TempLastWall = TempLastWall - 0.1;
+
+                        #region --_HeatFluxWall2--
+                        _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, 0, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                        #endregion
+                        #region --_HeatFluxWallOut--
+                        _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                        #endregion
+
+                        Difference2 = Math.Abs(_HeatFluxWall2 - _HeatFluxWallOut);
+
+                    }
+                    i = i + 1;
+                }
+
+                if (Difference2 > Difference2New || i == 1)
+                {
+
+                    while (Difference2 > 1 && TempLastWall < 1000)
+                    {
+                        TempLastWall = TempLastWall + 0.1;
+
+                        #region --_HeatFluxWall2--
+                        _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, 0, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                        #endregion
+                        #region --_HeatFluxWallOut--
+                        _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                        #endregion
+
+                        Difference2 = Math.Abs(_HeatFluxWall2 - _HeatFluxWallOut);
+
+                    }
+
+
+                }
+
+                #endregion
+
+                #region --_HeatFluxWall1--
+                _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial1, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, TempT2, TempLastWall, AcoeffWall1, BcoeffWall1, CcoeffWall1);
+                #endregion
+                #region --_HeatFluxWall2--
+                _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, 0, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                #endregion
+                #region --_HeatFluxWallOut--
+                _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                #endregion
+
+                Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWall2);
+                Difference2 = Math.Abs(_HeatFluxWall2 - _HeatFluxWallOut);
+
+                i = 0;
+
+                if (K == 100)
+                {
+                    Difference1 = 1;
+                    Difference2 = 1;
+                    Difference3 = 1;
+
+                }
+                K++;
+            }
+            return new double[] { TempT2, TempLastWall, _HeatFluxWall1, _HeatFluxWall2, _HeatFluxWallOut };
+        }
+
+        // Подбор значений для трех стенок
+        public double[] SelectionFor3Walls( double ChoseMaterial1,
+                                            double ChoseMaterial2,
+                                            double ChoseMaterial3,
+                                            double TypeOfCoeffTermalConductivity,
+                                            double DepthWall1,
+                                            double DepthWall2,
+                                            double DepthWall3,
+                                            double TempInside,
+                                            double TempT2,
+                                            double TempT3,
+                                            double TempLastWall,
+                                            double AcoeffWall1,
+                                            double BcoeffWall1,
+                                            double CcoeffWall1,
+                                            double AcoeffWall2,
+                                            double BcoeffWall2,
+                                            double CcoeffWall2,
+                                            double AcoeffWall3,
+                                            double BcoeffWall3,
+                                            double CcoeffWall3,
+                                            double ChoseBlowout,
+                                            double ChosePlace,
+                                            double Emissivity,
+                                            double TempOut,
+                                            double SpeedBlowout)
+        {
+            i = 0;
+            Numb_Wall_Generally = 3;
+            Difference1 = 5;
+            Difference2 = 5;
+            Difference3 = 5;
+            K = 0;
+            while ((Difference1 > 1 || Difference3 > 1) && (Difference2 > 1 || Difference1 > 1) && (Difference3 > 1 || Difference2 > 1))
+            {
+
+                #region --Первая стенка--
+                #region --_HeatFluxWall1--
+                _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial1, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, TempT2, TempLastWall, AcoeffWall1, BcoeffWall1, CcoeffWall1);
+                #endregion
+                #region --_HeatFluxWall2--
+                _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, TempT3, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                #endregion
+
+                Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWall2);
+                Difference1New = Difference1;
+
+
+                TempT2 = TempT2 - 0.1;
+
+                #region --_HeatFluxWall1--
+                _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial1, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, TempT2, TempLastWall, AcoeffWall1, BcoeffWall1, CcoeffWall1);
+                #endregion
+                #region --_HeatFluxWall2--
+                _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, TempT3, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                #endregion
+
+                Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWall2);
+
+                if (Difference1 < Difference1New || i == 0)
+                {
+                    while (Difference1 > 3 && TempT2 > 0)
+                    {
+                        Difference1New = Difference1;
+                        TempT2 = TempT2 - 0.1;
+
+                        #region --_HeatFluxWall1--
+                        _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial1, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, TempT2, TempLastWall, AcoeffWall1, BcoeffWall1, CcoeffWall1);
+                        #endregion
+                        #region --_HeatFluxWall2--
+                        _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, TempT3, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                        #endregion
+
+                        Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWall2);
+                    }
+
+                    i = i + 1;
+                }
+
+                if (Difference1 > Difference1New || i == 0)
+                {
+                    while (Difference1 > 3 && TempT2 < 2000)
+                    {
+                        TempT2 = TempT2 + 0.1;
+
+                        #region --_HeatFluxWall1--
+                        _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial1, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, TempT2, TempLastWall, AcoeffWall1, BcoeffWall1, CcoeffWall1);
+                        #endregion
+                        #region --_HeatFluxWall2--
+                        _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, TempT3, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                        #endregion
+
+                        Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWall2);
+                    }
+
+                    i = i + 1;
+                }
+                #endregion
+
+                #region --Вторая стенка--
+
+                #region --_HeatFluxWall2--
+                _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, TempT3, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                #endregion
+                #region --_HeatFluxWall3--
+                _HeatFluxWall3 = HeatFluxWall3(Numb_Wall_Generally, ChoseMaterial3, TypeOfCoeffTermalConductivity, DepthWall3, TempT3, TempLastWall, AcoeffWall3, BcoeffWall3, CcoeffWall3);
+                #endregion
+
+
+                Difference2 = Math.Abs(_HeatFluxWall2 - _HeatFluxWall3);
+                Difference2New = Difference2;
+
+                TempT3 = TempT3 - 0.1;
+
+                #region --_HeatFluxWall2--
+                _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, TempT3, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                #endregion
+                #region --_HeatFluxWall3--
+                _HeatFluxWall3 = HeatFluxWall3(Numb_Wall_Generally, ChoseMaterial3, TypeOfCoeffTermalConductivity, DepthWall3, TempT3, TempLastWall, AcoeffWall3, BcoeffWall3, CcoeffWall3);
+                #endregion
+
+                Difference2 = Math.Abs(_HeatFluxWall2 - _HeatFluxWall3);
+
+
+
+                if (Difference2 < Difference2New || i == 1)
+                {
+
+                    while (Difference2 > 3 && TempT3 > 0)
+                    {
+                        TempT3 = TempT3 - 0.1;
+
+                        #region --_HeatFluxWall2--
+                        _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, TempT3, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                        #endregion
+                        #region --_HeatFluxWall3--
+                        _HeatFluxWall3 = HeatFluxWall3(Numb_Wall_Generally, ChoseMaterial3, TypeOfCoeffTermalConductivity, DepthWall3, TempT3, TempLastWall, AcoeffWall3, BcoeffWall3, CcoeffWall3);
+                        #endregion
+
+                        Difference2 = Math.Abs(_HeatFluxWall2 - _HeatFluxWall3);
+
+                    }
+                    i = i + 1;
+                }
+
+                if (Difference2 > Difference2New || i == 1)
+                {
+
+                    while (Difference2 > 3 && TempT3 < 2000)
+                    {
+                        TempT3 = TempT3 + 0.1;
+
+                        #region --_HeatFluxWall2--
+                        _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, TempT3, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                        #endregion
+                        #region --_HeatFluxWall3--
+                        _HeatFluxWall3 = HeatFluxWall3(Numb_Wall_Generally, ChoseMaterial3, TypeOfCoeffTermalConductivity, DepthWall3, TempT3, TempLastWall, AcoeffWall3, BcoeffWall3, CcoeffWall3);
+                        #endregion
+
+                        Difference2 = Math.Abs(_HeatFluxWall2 - _HeatFluxWall3);
+
+                    }
+
+                    i = i + 1;
+                }
+                #endregion
+
+                #region --Третья стенка--
+                #region --_HeatFluxWall3--
+                _HeatFluxWall3 = HeatFluxWall3(Numb_Wall_Generally, ChoseMaterial3, TypeOfCoeffTermalConductivity, DepthWall3, TempT3, TempLastWall, AcoeffWall3, BcoeffWall3, CcoeffWall3);
+                #endregion
+                #region --_HeatFluxWallOut--
+                _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                #endregion
+
+
+                Difference3 = Math.Abs(_HeatFluxWall3 - _HeatFluxWallOut);
+                Difference3New = Difference3;
+
+                TempLastWall = TempLastWall - 0.1;
+
+                #region --_HeatFluxWall3--
+                _HeatFluxWall3 = HeatFluxWall3(Numb_Wall_Generally, ChoseMaterial3, TypeOfCoeffTermalConductivity, DepthWall3, TempT3, TempLastWall, AcoeffWall3, BcoeffWall3, CcoeffWall3);
+                #endregion
+                #region --_HeatFluxWallOut--
+                _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                #endregion
+
+                Difference3 = Math.Abs(_HeatFluxWall3 - _HeatFluxWallOut);
+
+                if (Difference3 < Difference3New || i == 2)
+                {
+
+                    while (Difference3 > 3 && TempLastWall > 0)
+                    {
+                        TempLastWall = TempLastWall - 0.1;
+
+                        #region --_HeatFluxWall3--
+                        _HeatFluxWall3 = HeatFluxWall3(Numb_Wall_Generally, ChoseMaterial3, TypeOfCoeffTermalConductivity, DepthWall3, TempT3, TempLastWall, AcoeffWall3, BcoeffWall3, CcoeffWall3);
+                        #endregion
+                        #region --_HeatFluxWallOut--
+                        _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                        #endregion
+
+                        Difference3 = Math.Abs(_HeatFluxWall3 - _HeatFluxWallOut);
+
+                    }
+                    i = i + 1;
+                }
+
+                if (Difference3 > Difference3New || i == 2)
+                {
+
+                    while (Difference3 > 3 && TempLastWall < 2000)
+                    {
+                        TempLastWall = TempLastWall + 0.1;
+
+                        #region --_HeatFluxWall3--
+                        _HeatFluxWall3 = HeatFluxWall3(Numb_Wall_Generally, ChoseMaterial3, TypeOfCoeffTermalConductivity, DepthWall3, TempT3, TempLastWall, AcoeffWall3, BcoeffWall3, CcoeffWall3);
+                        #endregion
+                        #region --_HeatFluxWallOut--
+                        _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                        #endregion
+
+                        Difference3 = Math.Abs(_HeatFluxWall3 - _HeatFluxWallOut);
+
+                    }
+
+                    i = i + 1;
+                }
+                #endregion
+
+                i = 0;
+
+                #region --_HeatFluxWall1--
+                _HeatFluxWall1 = HeatFluxWall1(Numb_Wall_Generally, ChoseMaterial1, TypeOfCoeffTermalConductivity, DepthWall1, TempInside, TempT2, TempLastWall, AcoeffWall1, BcoeffWall1, CcoeffWall1);
+                #endregion
+                #region --_HeatFluxWall2--
+                _HeatFluxWall2 = HeatFluxWall2(Numb_Wall_Generally, ChoseMaterial2, TypeOfCoeffTermalConductivity, DepthWall2, TempInside, TempT2, TempT3, TempLastWall, AcoeffWall2, BcoeffWall2, CcoeffWall2);
+                #endregion
+                #region --_HeatFluxWall3--
+                _HeatFluxWall3 = HeatFluxWall3(Numb_Wall_Generally, ChoseMaterial3, TypeOfCoeffTermalConductivity, DepthWall3, TempT3, TempLastWall, AcoeffWall3, BcoeffWall3, CcoeffWall3);
+                #endregion
+                #region --_HeatFluxWallOut--
+                _HeatFluxWallOut = HeatFluxWall4(ChoseBlowout, ChosePlace, Emissivity, TempLastWall, TempOut, SpeedBlowout);
+                #endregion
+
+                Difference1 = Math.Abs(_HeatFluxWall1 - _HeatFluxWall2);
+                Difference2 = Math.Abs(_HeatFluxWall2 - _HeatFluxWall3);
+                Difference3 = Math.Abs(_HeatFluxWall3 - _HeatFluxWallOut);
+
+                if (K == 100)
+                {
+                    Difference1 = 1;
+                    Difference2 = 1;
+                    Difference3 = 1;
+
+                }
+                K++;
+            }
+
+            return new double[] { TempT2, TempT3, TempLastWall, _HeatFluxWall1, _HeatFluxWall2, _HeatFluxWall3, _HeatFluxWallOut };
+        }
+
+
+    }
+}
